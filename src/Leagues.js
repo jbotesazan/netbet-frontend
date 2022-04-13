@@ -2,10 +2,9 @@ import React from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ListGroup } from "react-bootstrap";
 
-function Leagues ({setLeague, setObj}) {
+function Leagues ({setLeague}) {
 
     function handleClick(e) {
-        setObj({});
         setLeague(e.target.value);
     }
 

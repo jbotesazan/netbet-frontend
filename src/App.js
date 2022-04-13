@@ -4,7 +4,6 @@ import LoginPage from './LoginPage';
 import Home from './Home';
 import NavBar from './NavBar';
 import Bets from './Bets';
-// import Odds from './Odds';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -14,6 +13,7 @@ function App() {
   const [matchesOrOdds, setMatchesOrOdds] = useState(true);
   const [errors, setErrors] = useState([]);
   const [obj, setObj] = useState({});
+  const [arr, setArr] = useState([]);
 
   // function getCSRFToken() {
   //   return unescape(document.cookie.split('=')[1])
@@ -47,6 +47,7 @@ function App() {
 
   // normally sets the value of matches to whichever league is selected, but for testing purposes is currently set to EPL
   useEffect(() => {
+    setArr([])
     fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${league}&next=10&timezone=America%2FNew_York`, {
       "method": "GET",
       "headers": {
@@ -65,13 +66,24 @@ function App() {
     .catch((error) => {
       console.error(error)
     });
+    // return () => {
+    //   setMatches([])
+    // }
   },[league]);
   
-  useEffect(() => {
-        
-    if (!!matches?.length) {
+  // const cleanArr = async () => {
+  //   await setArr([])
+  // }
 
-      matches.forEach((match) => {
+  useEffect(() => {
+    console.log(arr)
+  },[arr])
+
+  useEffect(() => {
+      let newArr = []
+    if (!!matches?.length) {
+      // setObj({})
+      matches.forEach((match, index) => {
         fetch(`https://api-football-v1.p.rapidapi.com/v3/odds?fixture=${match.fixture.id}&bookmaker=7`, {
           "method": "GET",
           "headers": {
@@ -82,23 +94,39 @@ function App() {
         .then((r) => {
           if(r.ok) {
             r.json().then((matchOdds) => {
+              // console.log(matchOdds)
               let fixtureId = match.fixture.id;
               let gameObj = {
                 awayTeam: match.teams.away.name,
+                awayTeamLogo: match.teams.away.logo,
                 homeTeam: match.teams.home.name,
+                homeTeamLogo: match.teams.home.logo,
                 venue: match.fixture.venue.name,
+                // use .toUTCString() on the date to get the desired date format
+                date: match.fixture.date,
                 homeOdds: matchOdds.response[0].bookmakers[0].bets[0].values[0].odd,
                 drawOdds: matchOdds.response[0].bookmakers[0].bets[0].values[1].odd,
                 awayOdds: matchOdds.response[0].bookmakers[0].bets[0].values[2].odd,
               };
+                console.log(newArr)
+                newArr.push(gameObj)
+                // if (newArr.length === matches.length)
+                setArr(newArr)
+                
               // Object.assign is a JS function that takes and existing object you have (obj), and a new object you pass in (bigObj) and combines them
-              const handleSetObj = (fixtureId, gameObj) => {
-                let bigObj = {};
-                bigObj[fixtureId] = gameObj;
-                // I think this is the issue and why its compounding leagues when i click on a different league rather than resetting, its keeping the state and adding onto it
-                setObj(Object.assign(obj, bigObj));
-              };
-              handleSetObj(fixtureId, gameObj);
+              // const handleSetObj = (fixtureId, gameObj) => {
+              //   let bigArr = {};
+              //   bigObj[fixtureId] = gameObj;
+              //   // I think this is the issue and why its compounding leagues when i click on a different league rather than resetting, its keeping the state and adding onto it
+              //   setObj(Object.assign(obj, bigObj));
+              // };
+              // handleSetObj(fixtureId, gameObj);
+              // const handleSetArray = (fixtureId, gameObj) => {
+              //   let bigObj = {};
+              //   bigObj[fixtureId] = gameObj;
+              //   setArr([arr.push(bigObj)])
+              // }
+              // handleSetArray(fixtureId, gameObj);
             });
           }
         })
@@ -106,10 +134,11 @@ function App() {
           console.error(error)
         });
       })
+      // setArr(newArr);
     }
-  }, [matches, obj])
+  }, [matches])
   
-    console.log(obj)
+    console.log(arr)
     
     // Takes the data from the form for a new bet and posts it to the bets component
     const addBet = (formData) => {
@@ -138,7 +167,7 @@ function App() {
         <Switch>
           <Route exact path="/login"></Route>
           <Route exact path="/">
-            <Home user={user} matches={matches} setLeague={setLeague} setObj={setObj} matchesOrOdds={matchesOrOdds} addBet={addBet} errors={errors} />
+            <Home user={user} matches={matches} setLeague={setLeague} matchesOrOdds={matchesOrOdds} addBet={addBet} errors={errors} />
           </Route>
           <Route exact path="/bets">
             <Bets bets={bets} />

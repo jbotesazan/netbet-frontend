@@ -6,7 +6,7 @@ import BetForm from './BetForm';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Col, Row } from "react-bootstrap";
 
-function Home( {user, matches, setLeague, setObj, matchesOrOdds, addBet, errors} ) {
+function Home( {user, matches, setLeague, matchesOrOdds, addBet, errors} ) {
 
 
 
@@ -16,7 +16,7 @@ function Home( {user, matches, setLeague, setObj, matchesOrOdds, addBet, errors}
                 <h1 className='m-5' style={{textAlign: 'center'}}>{matchesOrOdds ?'Upcoming Fixtures' : 'Sportsbook'}</h1>
                 <Row>
                     <Col sm={2}>
-                        <Leagues setLeague={setLeague} setObj={setObj}/>
+                        <Leagues setLeague={setLeague}/>
                     </Col>
                     <Col>
                     {matchesOrOdds ? 
