@@ -1,49 +1,44 @@
 import React from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { ListGroup } from "react-bootstrap";
+import { Tabs, Tab, Box } from '@mui/material';
+import './App.css';
 
-function Leagues ({setLeague}) {
 
-    function handleClick(e) {
-        setLeague(e.target.value);
+function Leagues ({setLeague, league}) {
+
+    function handleChange (e, newLeague) {
+        setLeague(newLeague);
     }
 
+    const plLogo = 'https://www.fifplay.com/img/public/premier-league-4-logo.png'
+    const blLogo = 'https://www.fifplay.com/img/public/bundesliga-logo.png'
+    const llLogo = 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/LaLiga_Santander_logo_%28stacked%29.svg/1200px-LaLiga_Santander_logo_%28stacked%29.svg.png'
+    const saLogo = 'data:image/jpeg;base64,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'
+    const luLogo = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Ligue_1_Uber_Eats_logo.svg/1200px-Ligue_1_Uber_Eats_logo.svg.png'
+    const preLogo = 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Liga_NOS_logo.png'
+    const ereLogo = 'https://cdn.freebiesupply.com/logos/large/2x/eredivisie-logo-png-transparent.png'
+    const mlsLogo = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/MLS_crest_logo_RGB_gradient.svg/1200px-MLS_crest_logo_RGB_gradient.svg.png'
+    const spLogo = 'https://upload.wikimedia.org/wikipedia/en/a/a1/Cinch_premiership.png'
+    const uclLogo = 'https://upload.wikimedia.org/wikipedia/en/thumb/b/bf/UEFA_Champions_League_logo_2.svg/1200px-UEFA_Champions_League_logo_2.svg.png'
+
     return (
-        <div>
-            <h3 className='m-5' style={{textAlign: 'center'}}>Leagues</h3>
-            <ListGroup variant="flush">
-                <ListGroup.Item className='m-1' value='39' action onClick={handleClick} variant="light">
-                Premier League 🏴󠁧󠁢󠁥󠁮󠁧󠁿 
-                </ListGroup.Item>
-                <ListGroup.Item className='m-1' value='78' action onClick={handleClick} variant="light">
-                Bundesliga 🇩🇪 
-                </ListGroup.Item>
-                <ListGroup.Item className='m-1' value='140' action onClick={handleClick} variant="light">
-                La Liga 🇪🇸 
-                </ListGroup.Item>
-                <ListGroup.Item className='m-1' value='135' action onClick={handleClick} variant="light">
-                Serie A 🇮🇹 
-                </ListGroup.Item>
-                <ListGroup.Item className='m-1' value='61' action onClick={handleClick} variant="light">
-                Ligue 1 🇫🇷 
-                </ListGroup.Item>
-                <ListGroup.Item className='m-1' value='94' action onClick={handleClick} variant="light">
-                Primeira Liga 🇵🇹
-                </ListGroup.Item>
-                <ListGroup.Item className='m-1' value='88' action onClick={handleClick} variant="light">
-                Eredivisie 🇳🇱
-                </ListGroup.Item>
-                <ListGroup.Item className='m-1' value='253' action onClick={handleClick} variant="light">
-                Major League Soccer 🇺🇸
-                </ListGroup.Item>
-                <ListGroup.Item className='m-1' value='179' action onClick={handleClick} variant="light">
-                Premiership 🏴󠁧󠁢󠁳󠁣󠁴󠁿
-                </ListGroup.Item>
-                <ListGroup.Item className='m-1' value='2' action onClick={handleClick} variant="light">
-                UEFA Champions League ⭐️
-                </ListGroup.Item>
-            </ListGroup>
-        </div>
+            <Box sx={{ width: '100%', bgcolor: 'background.paper' }} className='mb-5'>
+            <Tabs
+            value={league}
+            onChange={handleChange}
+            centered
+            >
+                <Tab icon={<img alt='icon' src={plLogo} height='24px' width='33px'/>} iconPosition="start" label="Premier League" value='39' />
+                <Tab icon={<img alt='icon' src={blLogo} height='20px' width='20px'/>} iconPosition="start" label="Bundesliga" value='78'/>
+                <Tab icon={<img alt='icon' src={llLogo} height='20px' width='26px'/>} iconPosition="start" label="La Liga" value='140' />
+                <Tab icon={<img alt='icon' src={saLogo} height='22px' width='20px'/>} iconPosition="start" label="Serie A" value='135' />
+                <Tab icon={<img alt='icon' src={luLogo} height='22px' width='16px'/>} iconPosition="start" label="Ligue 1" value='61' />
+                <Tab icon={<img alt='icon' src={preLogo} height='20px' width='15px'/>} iconPosition="start" label="Primeira Liga" value='94' />
+                <Tab icon={<img alt='icon' src={ereLogo} height='12px' width='24px'/>} iconPosition="start" label="Eredivisie" value='88'/>
+                <Tab icon={<img alt='icon' src={mlsLogo} height='20px' width='20px'/>} iconPosition="start" label="MLS" value='253' />
+                <Tab icon={<img alt='icon' src={spLogo} height='24px' width='40px'/>} iconPosition="start" label="Premiership" value='179' />
+                <Tab icon={<img alt='icon' src={uclLogo} height='22px' width='24px'/>} iconPosition="start" label="UCL" value='2' />
+            </Tabs>
+        </Box>
     )
 }
 

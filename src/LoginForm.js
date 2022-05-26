@@ -1,18 +1,24 @@
 import React, {useState} from 'react';
+import SignupForm from './SignupForm';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Form, Button, Alert, FloatingLabel, Row, Col, Spinner } from "react-bootstrap";
+import { Form } from "react-bootstrap";
+import { Typography, FormControl, Button, Grid, InputLabel, FilledInput, Alert, Snackbar } from '@mui/material';
 
-function LoginForm( { setUser } ) {
+function LoginForm( { setUser, setShow, show, open, setOpen } ) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
 
-    // console.log(errors)
+    const handleSnackbarClose = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+    
+        setOpen(false);
+      };
 
     function handleSubmit(e) {
         e.preventDefault();
-        setIsLoading(true);
         fetch("/login", {
             method: "POST",
             headers: {
@@ -23,7 +29,6 @@ function LoginForm( { setUser } ) {
                     password
                 }),
         }).then((r) => {
-            setIsLoading(false);
             if (r.ok) {
                 r.json().then((user) => setUser(user));
             } else {
@@ -33,61 +38,66 @@ function LoginForm( { setUser } ) {
     }
 
     return(
-        <Container>
+
+        <>
             <Form onSubmit={handleSubmit}>
-                <Row>
-                    <Col xs={4}>
-                        <FloatingLabel label="Username">
-                            <Form.Control
-                                type="text"
-                                id="username"
-                                autoComplete="username"
-                                placeholder="Username"
-                                className="m-2"
-                                style={{width: '200px'}}
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                            />
-                        </FloatingLabel>
-                    </Col>
-                    <Col xs={4}>
-                            <FloatingLabel label="Password">
-                            <Form.Control
-                                type="password"
-                                id="password"
-                                autoComplete="current-password"
-                                placeholder="Password"
-                                className="m-2"
-                                style={{width: '200px'}}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </FloatingLabel>
-                    </Col>
-                    <Col>
-                        <Button variant="dark" className='m-3' type="submit"> 
-                            {isLoading ?
-                                <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
+                <Grid container spacing={4} sx={{ ml: 1}}>
+                    <Grid item xs={4}>
+                        <FormControl sx={{ m: 1, width: '20ch' }} variant="filled" color="secondary">
+                            <InputLabel>Username</InputLabel>
+                                <FilledInput
+                                    type="text"
+                                    id="username"
+                                    autoComplete="username"
+                                    placeholder="Username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
                                 />
-                            : "Login"}
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <FormControl sx={{ m: 1, width: '20ch' }} variant="filled" color="secondary">
+                            <InputLabel>Password</InputLabel>
+                                <FilledInput
+                                    type="password"
+                                    id="password"
+                                    autoComplete="current-password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Button variant="outlined" type="submit" color='secondary' sx={{ mt: 2 }}> 
+                            Login
                         </Button>
-                    </Col>
+                    </Grid>
+                </Grid>
+            </Form>
                         <div>
                             {errors.map((err) => (
-                                <Alert key={err} variant={'danger'}>{err}</Alert>
+                                //find out if you can render errors with the snackbar
+                                <Snackbar
+                                    open={open}
+                                    autoHideDuration={5000}
+                                    onClose={handleSnackbarClose}
+                                >
+                                    <Alert onClose={handleSnackbarClose} key={err} severity="error" sx={{ width: '100%' }}>{err}</Alert>
+                                </Snackbar>
                             ))}
                         </div>
-                </Row>
-            </Form>
-        </Container>
+                <Typography sx={{ ml: 18 }}>
+                    Don't have an account? &nbsp;
+                    <Button variant="outlined" color='secondary' sx={{ m: 2 }} onClick={() => setShow(true)}>Sign Up</Button>
+                </Typography>
+
+                <SignupForm setUser={setUser} show={show} setShow={setShow} />
+        </>
+
     );
 }
 
 export default LoginForm;
 
-// style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}
+// <Alert key={err} severity='error' className='m-1'>{err}</Alert>

@@ -4,20 +4,20 @@ import LoginPage from './LoginPage';
 import Home from './Home';
 import NavBar from './NavBar';
 import Bets from './Bets';
+import './App.css';
+
 
 function App() {
   const [user, setUser] = useState(null);
   const [bets, setBets] = useState([]);
   const [league, setLeague] = useState('39');
   const [matches, setMatches] = useState([]);
-  const [matchesOrOdds, setMatchesOrOdds] = useState(true);
   const [errors, setErrors] = useState([]);
-  const [obj, setObj] = useState({});
   const [arr, setArr] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [show, setShow] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  // function getCSRFToken() {
-  //   return unescape(document.cookie.split('=')[1])
-  // }
 
   // Auto-login
   useEffect(() => {
@@ -31,7 +31,7 @@ function App() {
       console.error(error)
     });
   },[]);
-
+  
   // Grabs the bets from the backend and displays them in the bets component
   useEffect(() => {
     fetch('/bets')
@@ -44,10 +44,33 @@ function App() {
       console.error(error)
     });
   },[]);
+  
+  // Takes the data from the form for a new bet and posts it to the bets component
+  const addBet = (formData) => {
+    fetch("/bets", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  }).then((r) => {
+      if (r.ok) {
+        r.json().then(
+          (newBet) => setBets([...bets, newBet]),
+          setShow(false),
+          setOpen(true),
+          setErrors([])
+          );
+      } else {
+        r.json().then((err) => setErrors(err.errors));
+      }
+    })
+  }
 
-  // normally sets the value of matches to whichever league is selected, but for testing purposes is currently set to EPL
+
   useEffect(() => {
-    setArr([])
+    setIsLoading(true);
+    setArr([]);
     fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?league=${league}&next=10&timezone=America%2FNew_York`, {
       "method": "GET",
       "headers": {
@@ -58,7 +81,6 @@ function App() {
     .then((r) => {
       if(r.ok) {
         r.json().then((matches) => {
-          // console.log(matches.response)
           setMatches(matches.response)
         });
       }
@@ -66,24 +88,12 @@ function App() {
     .catch((error) => {
       console.error(error)
     });
-    // return () => {
-    //   setMatches([])
-    // }
-  },[league]);
-  
-  // const cleanArr = async () => {
-  //   await setArr([])
-  // }
-
-  useEffect(() => {
-    console.log(arr)
-  },[arr])
+  }, [league]);
 
   useEffect(() => {
       let newArr = []
     if (!!matches?.length) {
-      // setObj({})
-      matches.forEach((match, index) => {
+      matches.forEach((match) => {
         fetch(`https://api-football-v1.p.rapidapi.com/v3/odds?fixture=${match.fixture.id}&bookmaker=7`, {
           "method": "GET",
           "headers": {
@@ -95,79 +105,46 @@ function App() {
           if(r.ok) {
             r.json().then((matchOdds) => {
               // console.log(matchOdds)
-              let fixtureId = match.fixture.id;
+                let date = new Date (match.fixture.date)
+                let newDate = new Date(date.toJSON()).toUTCString()
+                // console.log(date)
               let gameObj = {
+                fixtureId: match.fixture.id,
                 awayTeam: match.teams.away.name,
                 awayTeamLogo: match.teams.away.logo,
                 homeTeam: match.teams.home.name,
                 homeTeamLogo: match.teams.home.logo,
                 venue: match.fixture.venue.name,
-                // use .toUTCString() on the date to get the desired date format
-                date: match.fixture.date,
+                date: newDate,
                 homeOdds: matchOdds.response[0].bookmakers[0].bets[0].values[0].odd,
                 drawOdds: matchOdds.response[0].bookmakers[0].bets[0].values[1].odd,
                 awayOdds: matchOdds.response[0].bookmakers[0].bets[0].values[2].odd,
               };
-                console.log(newArr)
                 newArr.push(gameObj)
-                // if (newArr.length === matches.length)
-                setArr(newArr)
-                
-              // Object.assign is a JS function that takes and existing object you have (obj), and a new object you pass in (bigObj) and combines them
-              // const handleSetObj = (fixtureId, gameObj) => {
-              //   let bigArr = {};
-              //   bigObj[fixtureId] = gameObj;
-              //   // I think this is the issue and why its compounding leagues when i click on a different league rather than resetting, its keeping the state and adding onto it
-              //   setObj(Object.assign(obj, bigObj));
-              // };
-              // handleSetObj(fixtureId, gameObj);
-              // const handleSetArray = (fixtureId, gameObj) => {
-              //   let bigObj = {};
-              //   bigObj[fixtureId] = gameObj;
-              //   setArr([arr.push(bigObj)])
-              // }
-              // handleSetArray(fixtureId, gameObj);
-            });
+                if (newArr.length === matches.length || newArr.length > 7)
+                setArr(newArr);
+                setIsLoading(false);
+              });
           }
         })
         .catch((error) => {
           console.error(error)
         });
       })
-      // setArr(newArr);
     }
   }, [matches])
-  
-    console.log(arr)
     
-    // Takes the data from the form for a new bet and posts it to the bets component
-    const addBet = (formData) => {
-      fetch("/bets", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    }).then((r) => {
-      if (r.ok) {
-        r.json().then((newBet) => setBets([...bets, newBet]));
-      } else {
-        r.json().then((err) => setErrors(err.errors));
-      }
-    })
-  }
 
   // conditionally renders the login page based on if the user is logged in or not
-  if (!user) return <LoginPage setUser={setUser} />
+  if (!user) return <LoginPage setUser={setUser} open={open} setOpen={setOpen} />
   
   return (
-    <div>
+    <div className='background'>
       <Router>
-        <NavBar user={user} setUser={setUser} setMatchesOrOdds={setMatchesOrOdds} matchesOrOdds={matchesOrOdds}/>
+        <NavBar user={user} setUser={setUser}/>
         <Switch>
-          <Route exact path="/login"></Route>
           <Route exact path="/">
-            <Home user={user} matches={matches} setLeague={setLeague} matchesOrOdds={matchesOrOdds} addBet={addBet} errors={errors} />
+            <Home setShow={setShow} show={show} user={user} arr={arr} setLeague={setLeague} league={league} addBet={addBet} open={open} setOpen={setOpen} errors={errors} isLoading={isLoading}/>
           </Route>
           <Route exact path="/bets">
             <Bets bets={bets} />

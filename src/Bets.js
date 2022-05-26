@@ -1,26 +1,33 @@
-import React from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import {Container} from "react-bootstrap";
+import React, {useState} from "react";
+import { Container } from '@mui/material'; 
+import ActiveBets from "./ActiveBets";
+import SettledBets from "./SettledBets";
+import ActiveSettled from "./ActiveSettled";
 
 function Bets({bets}) {
+    const [active, setActive] = useState('1');
+
     return(
-        <Container>
-            <div>
-                {bets.map((bet) => (
-                    <div>
-                        <h3>{bet.game}</h3>
-                        <p>
-                            Bet: {bet.bet}
-                            <br />
-                            Odds: {bet.odds}
-                            <br />
-                            Wager: ${bet.wager} | To Win: ${bet.return_amount}
-                        </p>
-                        <hr />
-                    </div>
-                ))}
-            </div>
-        </Container>
+        <div>
+            <Container maxWidth>
+                        <>
+
+                            <ActiveSettled active={active} setActive={setActive}/>
+                                
+                            { active === '1'
+
+                                ?
+
+                                    <ActiveBets bets={bets} />
+
+                                :
+
+                                    <SettledBets bets={bets} />
+                     
+                            }
+                        </>
+            </Container>
+        </div>
     )
 }
 

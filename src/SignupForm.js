@@ -1,19 +1,22 @@
 import React, { useState } from "react";
+import {  Typography, FormControl, Button, Container, InputLabel, FilledInput, Alert, Stack } from '@mui/material';
+import { Form, Modal } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Form, Button, Alert, FloatingLabel, Row, Col, Spinner } from "react-bootstrap";
 
-function SignupForm( { setUser } ) {
+function SignupForm( { setUser, show, setShow } ) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [passwordConfirmation, setPasswordConfirmation] = useState("");
-    const [balance, setBalance] = useState("");
     const [errors, setErrors] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+
+
+    function handleClose () {
+        setShow(false);
+    };
 
     function handleSubmit(e) {
         e.preventDefault();
         setErrors([]);
-        setIsLoading(true);
         fetch("/signup", {
             method: "POST",
             headers: {
@@ -23,11 +26,9 @@ function SignupForm( { setUser } ) {
                 username,
                 password,
                 password_confirmation: passwordConfirmation,
-                balance,
             }),
         })
         .then((r) => {
-            setIsLoading(false);
             if (r.ok) {
                 r.json().then((user) => setUser(user));
             } else {
@@ -37,86 +38,77 @@ function SignupForm( { setUser } ) {
     }
 
     return(
-        <Container>
-            <Form onSubmit={handleSubmit}>
-                <Row>
-                    <Col xs={5}>
-                        <FloatingLabel label="Username">
-                            <Form.Control
-                                placeholder="Username"
-                                className="m-2"
-                                type="text"
-                                id="username"
-                                autoComplete="username"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                            />
-                        </FloatingLabel>
-                    </Col>
-                    <Col xs={5}>
-                        <FloatingLabel label="Balance">
-                            <Form.Control
-                                type="text"
-                                id="Balance"
-                                autoComplete="balance"
-                                placeholder="Balance"
-                                className="m-2"
-                                value={balance}
-                                onChange={(e) => setBalance(e.target.value)}
-                            />
-                        </FloatingLabel>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col xs={5}>
-                        <FloatingLabel label="Password">
-                            <Form.Control
-                                type="password"
-                                id="password"
-                                autoComplete="current-password"
-                                placeholder="Password"
-                                className="m-2"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </FloatingLabel>
-                    </Col>
-                    <Col xs={5}>
-                        <FloatingLabel label="Password Confirmation">
-                            <Form.Control
-                                type="password"
-                                id="password_confirmation"
-                                autoComplete="current-password"
-                                placeholder="Confirm Password"
-                                className="m-2"
-                                value={passwordConfirmation}
-                                onChange={(e) => setPasswordConfirmation(e.target.value)}
-                            />
-                        </FloatingLabel>
-                    </Col>
-                    <Col xs={2}>
-                    <Button variant="dark" className='m-3' type="submit" style={{width: '90px'}}> 
-                            {isLoading ?
-                                <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
-                                />
-                            : "Sign Up"}
-                        </Button>
-                    </Col>
-                </Row>
-                <Row>
-                    <div>
-                        {errors.map((err) => (
-                            <Alert key={err} variant={'danger'}>{err}</Alert>
-                        ))}
-                    </div>
-                </Row>
-            </Form>
-        </Container>
+        
+        <>
+            <Modal
+                show={show}
+                onHide={handleClose}
+                backdrop="static"
+                keyboard={false}
+                centered
+            >
+                <Modal.Header closeButton style={{backgroundColor: '#6633FF'}}>
+                    {/* <Typography alignItems="center" justifyContent="center" variant='h5'>Join</Typography> */}
+                </Modal.Header>
+
+                <Modal.Body>
+                    <Container>
+                        <Form onSubmit={handleSubmit} style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
+                            <Stack spacing={3} align="center">
+                                        <Typography variant='h6'>Create a NetBet Account</Typography>
+
+                                        <FormControl sx={{ width: '35ch' }} variant="filled">
+                                            <InputLabel>Username</InputLabel>
+                                                <FilledInput
+                                                    type="text"
+                                                    id="username"
+                                                    autoComplete="username"
+                                                    placeholder="Username"
+                                                    value={username}
+                                                    onChange={(e) => setUsername(e.target.value)}
+                                                />
+                                        </FormControl>
+
+
+                                        <FormControl sx={{ width: '35ch' }} variant="filled">
+                                            <InputLabel>Password</InputLabel>
+                                                <FilledInput
+                                                    type="password"
+                                                    id="password"
+                                                    autoComplete="current-password"
+                                                    placeholder="Password"
+                                                    value={password}
+                                                    onChange={(e) => setPassword(e.target.value)}
+                                                />
+                                        </FormControl>
+
+                                        <FormControl sx={{ width: '35ch' }} variant="filled">
+                                            <InputLabel>Password Confirmation</InputLabel>
+                                                <FilledInput
+                                                    type="password"
+                                                    id="password_confirmation"
+                                                    autoComplete="current-password"
+                                                    placeholder="Confirm Password"
+                                                    value={passwordConfirmation}
+                                                    onChange={(e) => setPasswordConfirmation(e.target.value)}
+                                                />
+                                        </FormControl>
+
+                                        <Button variant="outlined" type="submit" color='primary' > 
+                                            Create Account
+                                        </Button>
+
+                                        <div>
+                                            {errors.map((err) => (
+                                                <Alert key={err} severity='error'>{err}</Alert>
+                                            ))}
+                                        </div>
+                                </Stack>
+                            </Form>
+                    </Container>
+                </Modal.Body>
+            </Modal>
+        </>
     );
 }
 

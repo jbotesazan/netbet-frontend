@@ -1,46 +1,38 @@
 import React from 'react';
 import Leagues from './Leagues';
 import Matches from './Matches';
-import Odds from './Odds';
-import BetForm from './BetForm';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Col, Row } from "react-bootstrap";
+// import ParticleBackground from './ParticleBackground';
+import { Container, Skeleton, Stack } from '@mui/material'; 
 
-function Home( {user, matches, setLeague, matchesOrOdds, addBet, errors} ) {
+function Home( { arr, setLeague, errors, addBet, user, league, isLoading, setShow, show, open, setOpen } ) {
 
 
 
     return(
         <div>
-            <Container fluid>
-                <h1 className='m-5' style={{textAlign: 'center'}}>{matchesOrOdds ?'Upcoming Fixtures' : 'Sportsbook'}</h1>
-                <Row>
-                    <Col sm={2}>
-                        <Leagues setLeague={setLeague}/>
-                    </Col>
-                    <Col>
-                    {matchesOrOdds ? 
-                        (
-                            <>
-                                <Matches matches={matches}/>
-                            </>
-                        ) : (
-                            <>
-                            <Row>
-                                <Col>
-                                    <BetForm addBet={addBet} errors={errors} user={user}/>
-                                </Col>
-                            </Row>
-                                <Row>
-                                    <Col>
-                                        <Odds/>
-                                    </Col>
-                                </Row>
-                            </>
-                        )
-                    }
-                    </Col>
-                </Row>
+            <Container maxWidth>
+                        <>
+                            <Leagues setLeague={setLeague} league={league}/>
+
+                                
+                            { isLoading 
+
+                                ?
+                                <Container>
+                                    <Stack spacing={1}>
+                                        <Skeleton animation="wave" maxWidth height={200} />
+                                        <Skeleton animation="wave" maxWidth height={200} />
+                                        <Skeleton animation="wave" maxWidth height={200} />
+                                        <Skeleton animation="wave" maxWidth height={200} />
+                                    </Stack>
+                                </Container>
+
+                                :
+
+                                <Matches arr={arr} errors={errors} addBet={addBet} user={user} setShow={setShow} show={show} open={open} setOpen={setOpen}/>
+                            
+                            }
+                        </>
             </Container>
         </div>
     );
